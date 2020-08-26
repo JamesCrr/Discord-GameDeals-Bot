@@ -1,10 +1,7 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 
-const siteURL = "https://www.reddit.com/r/GameDeals/"
-const titleArray = [];
-const dealLinkArray = [];
-const redditLinkArray = [];
+const siteURL = "https://www.reddit.com/r/GameDeals/new/"
 
 const fetchData = async () => {
     const result = await axios.get(siteURL);
@@ -17,6 +14,9 @@ const getResults = async () => {
     const redditLink = "a.SQnoC3ObvgnGjWt90zD9Z";
     const articleRoot = "div._32pB7ODBwG3OSx1u_17g58";
     const $ = await fetchData();
+    var titleArray = [];
+    var dealLinkArray = [];
+    var redditLinkArray = [];
 
     $(titleElement, articleRoot).each(function(index, element) {
         const title = $(this).text();

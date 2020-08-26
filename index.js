@@ -14,10 +14,15 @@ var myTimer;
 var channelTarget;
 const timerFunc = async () => {
     // Channel got deleted
-    if (getChannel() === false) 
+    if (getChannel() === undefined) 
         setUpChannel();
 
-    const results = await getResults();
+    var results = await getResults();
+    var currentDate = new Date();
+    console.log("Time: " + currentDate.toTimeString() +
+    "\nRecordedDeal: " + previousResults.titles +
+    "\nLatestDeal: " + results.titles[0] +
+    "\nNo New Deals..\n");
     if (previousResults.titles === null)
         recordLatestTitle(results);
     else if (previousResults.titles !== results.titles[0]) {
@@ -25,9 +30,9 @@ const timerFunc = async () => {
         msg = "**" + results.titles[0] + "**" + "\n";
         msg += results.dealLinks[0];
         channelTarget.send(msg);
+        console.log("New Deal SENT!\n");
         recordLatestTitle(results);
     }
-    console.log("No New Deals..");
 }
 const recordLatestTitle = (newResults) => {
     previousResults.titles = newResults.titles[0];
@@ -35,8 +40,10 @@ const recordLatestTitle = (newResults) => {
     previousResults.redditLinks = newResults.redditLinks[0];
 }
 const setUpChannel = () => {
-    if (getChannel() === true)
+    if (getChannel() !== undefined){
+        channelTarget = getChannel();
         return;
+    }
     // Create a new text channel
     const discordGuild = discordClient.guilds.cache.first();
     discordGuild.channels.create(discordChannelTargetName, { 
@@ -44,7 +51,7 @@ const setUpChannel = () => {
         topic: "Game Deals Channel" 
     })
     .then(() => {
-        channelTarget = discordClient.channels.cache.find(channel => channel.name === discordChannelTargetName);
+        channelTarget = getChannel();
         channelTarget.send("I am using this Channel to send you Deals!\nPlease don't delete this Channel.");
         console.log("Channel Target: " + channelTarget);
     })
@@ -52,21 +59,24 @@ const setUpChannel = () => {
 }
 const getChannel = () => {
     const channelExists = discordClient.channels.cache.find(channel => channel.name === discordChannelTargetName);
-    if (channelExists === undefined)
-        return false;
-    return true;
+    return channelExists;
 }
 
 discordClient.once("ready", () => {
     console.log("ONLINE")
     setUpChannel();
+    timerFunc();
     setInterval(timerFunc, 3600000);    // 3 600 000 miliseconds = 1 hr
+    //setInterval(timerFunc, 300000);    // 300 000 miliseconds = 5 min
 });
 discordClient.on("message", message => {
     if(message.author.bot)
         return;
 
-    if(message.content === "!exit"){
+    if(message.content === "!fetch"){
+        timerFunc();
+    }
+    else if(message.content === "!exit"){
         clearInterval(myTimer);
         myTimer = null;
         discordClient.destroy();
