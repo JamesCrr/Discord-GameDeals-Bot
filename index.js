@@ -26,11 +26,21 @@ const timerFunc = async () => {
     if (previousResults.titles === null)
         recordLatestTitle(results);
     else if (previousResults.titles !== results.titles[0]) {
-        var msg = ""
-        msg = "**" + results.titles[0] + "**" + "\n";
-        msg += results.dealLinks[0];
-        channelTarget.send(msg);
-        console.log("New Deal SENT!\n");
+        var changeLength = 0;
+        for(var i = 0; i < results.titles.length; ++i){
+            if(previousResults.titles !== results.titles[i]){
+                changeLength++;
+                continue;
+            }
+            break;
+        }
+        for(var i = changeLength-1; i >= 0; --i) {
+            var msg = ""
+            msg = "**" + results.titles[i] + "**" + "\n";
+            msg += results.dealLinks[i];
+            channelTarget.send(msg);
+            console.log("New Deal SENT!\n");
+        }
         recordLatestTitle(results);
     }
 }
