@@ -10,6 +10,7 @@ var previousResults = {
     dealLinks: null,
     redditLinks: null,
 };
+var results = null;
 var myTimer;
 var channelTarget;
 const timerFunc = async () => {
@@ -17,7 +18,7 @@ const timerFunc = async () => {
     if (getChannel() === undefined) 
         setUpChannel();
 
-    var results = await getResults();
+    results = await getResults();
     var currentDate = new Date();
     console.log("Time: " + currentDate.toTimeString() +
     "\nRecordedDeal: " + previousResults.titles +
@@ -28,11 +29,9 @@ const timerFunc = async () => {
     else if (previousResults.titles !== results.titles[0]) {
         var changeLength = 0;
         for(var i = 0; i < results.titles.length; ++i){
-            if(previousResults.titles !== results.titles[i]){
-                changeLength++;
-                continue;
-            }
-            break;
+            if(previousResults.titles === results.titles[i])
+                break;
+            changeLength++;
         }
         for(var i = changeLength-1; i >= 0; --i) {
             var msg = ""
@@ -71,6 +70,19 @@ const getChannel = () => {
     const channelExists = discordClient.channels.cache.find(channel => channel.name === discordChannelTargetName);
     return channelExists;
 }
+const debugLog = () => {
+    var msg = "Results:\n"
+    for(var i = 0; i < results.titles.length; ++i){
+        msg += (i + ": " + results.titles[i] + "\n");
+    }
+    channelTarget.send(msg);
+
+    if (previousResults.titles === null)
+      return;
+    msg = "Recorded:\n";
+    msg += previousResults.titles + "\n";
+    channelTarget.send(msg);
+}
 
 discordClient.once("ready", () => {
     console.log("ONLINE")
@@ -83,8 +95,11 @@ discordClient.on("message", message => {
     if(message.author.bot)
         return;
 
-    if(message.content === "!fetch"){
+    if(message.content === "!check"){
         timerFunc();
+    }
+    else if (message.content === "!debuglog"){
+        debugLog();
     }
     else if(message.content === "!exit"){
         clearInterval(myTimer);
