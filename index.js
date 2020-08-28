@@ -5,11 +5,7 @@ const discordChannelTargetName = "game-deals";
 const discordClient = new discord.Client();
 discordClient.login(config.botKey);
 
-var previousResults = {
-    titles: null,
-    dealLinks: null,
-    redditLinks: null,
-};
+var previousResults = null;
 var results = null;
 var myTimer;
 var channelTarget;
@@ -19,34 +15,28 @@ const timerFunc = async () => {
         setUpChannel();
 
     results = await getResults();
+    var resultDiff = getResultsDiff();
     var currentDate = new Date();
-    console.log("Time: " + currentDate.toTimeString() +
-    "\nRecordedDeal: " + previousResults.titles +
-    "\nLatestDeal: " + results.titles[0] +
-    "\nNo New Deals..\n");
-    if (previousResults.titles === null)
-        recordLatestTitle(results);
-    else if (previousResults.titles !== results.titles[0]) {
-        var changeLength = 0;
-        for(var i = 0; i < results.titles.length; ++i){
-            if(previousResults.titles === results.titles[i])
-                break;
-            changeLength++;
-        }
-        for(var i = changeLength-1; i >= 0; --i) {
-            var msg = ""
-            msg = "**" + results.titles[i] + "**" + "\n";
-            msg += results.dealLinks[i];
-            channelTarget.send(msg);
-            console.log("New Deal SENT!\n");
-        }
-        recordLatestTitle(results);
+    if (resultDiff.length < 1){
+        console.log("Time: " + currentDate.toTimeString() +
+        "\nRecordedDeal: " + (previousResults === null ? "null" : previousResults.titles[0]) +
+        "\nLatestDeal: " + results.titles[0] +
+        "\nNo New Deals..\n");
+        previousResults = results;
+        return;
     }
-}
-const recordLatestTitle = (newResults) => {
-    previousResults.titles = newResults.titles[0];
-    previousResults.dealLinks = newResults.dealLinks[0];
-    previousResults.redditLinks = newResults.redditLinks[0];
+
+    for(var i = 0; i < resultDiff.length; ++i) {
+        var msg = ""
+        msg = "**" + resultDiff[i].title + "**" + "\n";
+        msg += resultDiff[i].dealLink;
+        channelTarget.send(msg);
+        console.log("Time: " + currentDate.toTimeString() +
+        "\nRecordedDeal: " + (previousResults === null ? "null" : previousResults.titles[0]) +
+        "\nLatestDeal: " + results.titles[0] +
+        "\nNew Deal SENT!\n");
+    }
+    previousResults = results;
 }
 const setUpChannel = () => {
     if (getChannel() !== undefined){
@@ -70,6 +60,26 @@ const getChannel = () => {
     const channelExists = discordClient.channels.cache.find(channel => channel.name === discordChannelTargetName);
     return channelExists;
 }
+const getResultsDiff = () => {
+    var arrayDiff = []
+    if (results === null || previousResults === null)
+        return arrayDiff;
+    for (var i = results.titles.length-1; i >= 0; --i) {
+        for(var p = previousResults.titles.length-1; p >= 0; --p) {
+            if (results.titles[i] === previousResults.titles[p])
+                break;
+            if (p - 1 < 0){
+                var newItem = {
+                    title: results.titles[i],
+                    dealLink: results.dealLinks[i],
+                    redditLink: results.redditLinks[i],
+                }
+                arrayDiff.push(newItem)
+            }
+        }
+    }
+    return arrayDiff;
+}
 const debugLog = () => {
     var msg = "Results:\n"
     for(var i = 0; i < results.titles.length; ++i){
@@ -77,10 +87,12 @@ const debugLog = () => {
     }
     channelTarget.send(msg);
 
-    if (previousResults.titles === null)
+    if (previousResults === null)
       return;
     msg = "Recorded:\n";
-    msg += previousResults.titles + "\n";
+    for(var i = 0; i < previousResults.titles.length; ++i){
+        msg += (i + ": " + previousResults.titles[i] + "\n");
+    }
     channelTarget.send(msg);
 }
 
