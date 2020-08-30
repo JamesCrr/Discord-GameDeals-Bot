@@ -60,5 +60,8 @@ discordClient.on("message", message => {
     else if(message.content === "!help"){
         scrapperCommands.commandHelpLog(message);
     }
+    else if(message.content === "!fetch"){
+        scrapperCommands.commandTest();
+    }
    
 });

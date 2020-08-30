@@ -7,9 +7,9 @@ var myTimer = null;
 
 const sendScrapperResult = async () => {
     obj_results = await getResults();
-    var resultDiff = getResultsDiff();
+    var array_resultDiff = getResultsDiff();
     var currentDate = new Date();
-    if (resultDiff.length < 1){
+    if (array_resultDiff.length < 1){
         console.log("Time: " + currentDate.toTimeString() +
         "\nRecordedDeal: " + (obj_previousResults === null ? "null" : obj_previousResults.titles[0]) +
         "\nLatestDeal: " + obj_results.titles[0] +
@@ -19,16 +19,16 @@ const sendScrapperResult = async () => {
     }
     
     var array_msg = []
-    for(var i = 0; i < resultDiff.length; ++i) {
-        var msg = ""
-        msg = "**" + resultDiff[i].title + "**" + "\n";
-        msg += resultDiff[i].dealLink;
+    for(var i = 0; i < array_resultDiff.length; ++i) {
+        var msg = "";
+        msg = "**" + array_resultDiff[i].title + "**" + "\n";
+        msg += array_resultDiff[i].dealLink;
         array_msg.push(msg);
-        console.log("Time: " + currentDate.toTimeString() +
-        "\nRecordedDeal: " + (obj_previousResults === null ? "null" : obj_previousResults.titles[0]) +
-        "\nLatestDeal: " + obj_results.titles[0] +
-        "\nNew Deal SENT!\n");
+        console.log(array_resultDiff[i].title + "\nNew Deal SENT!\n");
     }
+    console.log("Time: " + currentDate.toTimeString() +
+    "\nRecordedDeal: " + (obj_previousResults === null ? "null" : obj_previousResults.titles[0]) +
+    "\nLatestDeal: " + obj_results.titles[0] + "\n");
     obj_previousResults = obj_results;
 
     // Send msgs to all target channels
@@ -43,7 +43,7 @@ const getResultsDiff = () => {
     if (obj_results === null || obj_previousResults === null)
         return arrayDiff;
     for (var i = obj_results.titles.length-1; i >= 0; --i) {
-        for(var p = obj_previousResults.titles.length-1; p >= 0; --p) {
+        for(var p = i; p >= 0; --p) {
             if (obj_results.titles[i] === obj_previousResults.titles[p])
                 break;
             if (p - 1 < 0){
@@ -127,4 +127,5 @@ module.exports = {
     commandRemoveTarget: commandRemoveChannelTarget,
     commandDebugLog: commandPrintDebugLog,
     commandHelpLog: commandPrintHelp,
+    commandTest: sendScrapperResult,
 }
