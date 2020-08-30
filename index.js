@@ -32,21 +32,33 @@ const getChannel = () => {
 
 discordClient.once("ready", () => {
     console.log("ONLINE")
-    scrapperCommands.commandStartScrapper();
+    scrapperCommands.startWebScrapping();
+});
+discordClient.on("channelDelete", deletedChannel => {
+    if (deletedChannel.type === "dm")
+        return;
+    scrapperCommands.removeChannelTarget(deletedChannel.id);
 });
 discordClient.on("message", message => {
     if(message.author.bot)
         return;
 
     message.content = message.content.toLowerCase();
-    if(message.content === "!addtotargets"){
-        scrapperCommands.commandCreateTarget(message);
+    if(message.content === "!target"){
+        if (message.channel.type === "dm"){
+            message.channel.send("Unable to register, Only avaliable in channels.");
+            return;
+        }
+        scrapperCommands.commandCreateTarget(message, true);
     }
-    else if(message.content === "!removefromtargets"){
-        scrapperCommands.commandRemoveTarget(message);
+    else if(message.content === "!rmtarget"){
+        scrapperCommands.commandRemoveTarget(message, true);
     }
     else if(message.content === "!debuglog"){
         scrapperCommands.commandDebugLog(message);
+    }
+    else if(message.content === "!help"){
+        scrapperCommands.commandHelpLog(message);
     }
    
 });

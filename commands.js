@@ -82,33 +82,49 @@ const getChannelTargetIndex = (channelID) => {
     return null;
 }
 
-const commandStartScrapping = () => {
+const startScrapping = () => {
     sendScrapperResult();
     myTimer = setInterval(sendScrapperResult, 3600000);    // 3 600 000 miliseconds = 1 hr
     //myTimer = setInterval(timerFunc, 300000);    // 300 000 miliseconds = 5 min
 }
-const commandCreateChannelTarget = (message) => {
-    if (getChannelTargetIndex(message.channel.id) !== null)
-        return false;
-    array_ChannelTargets.push(message.channel);
-    return true;
-}
-const commandRemoveChannelTarget = (message) => {
-    var index = getChannelTargetIndex(message.channel.id);
+const removeChannelTarget = (channelID) => {
+    var index = getChannelTargetIndex(channelID);
     if (index === null)
         return false;
     array_ChannelTargets.splice(index, 1);
     return true;
 }
-const commandPrintDebugLog = (message) => {
-    for (var i = 0; i < array_ChannelTargets.length; ++i) {
-        array_ChannelTargets[i].send(getDebugLog());
+const commandCreateChannelTarget = (message) => {
+    if (getChannelTargetIndex(message.channel.id) !== null)
+        return false;
+    array_ChannelTargets.push(message.channel);
+    message.channel.send("**Channel Registered!**\nI will now send you new Deals using this Channel!")
+    return true;
+}
+const commandRemoveChannelTarget = (message) => {
+    if (removeChannelTarget(message.channel.id) === false){
+        message.channel.send("**Unable to Remove!**\nThis Channel was not registered prior")
+        return false;
     }
+    message.channel.send("**Channel Unregistered!**\nThis channel will no longer receive deals");
+    return true;
+}
+const commandPrintDebugLog = (message) => {
+    message.channel.send(getDebugLog());
+}
+const commandPrintHelp = (message) => {
+    const msg = "**Commands:**\n" +
+    "\t**!help :** Displays information about all avaliable commands\n" +  
+    "\t**!target :** Registers this channel to receive Deals\n" + 
+    "\t**!rmtarget :** Unregisters this channel from receiving Deals\n"
+    message.channel.send(msg);
 }
 
 module.exports = {
-    commandStartScrapper: commandStartScrapping,
+    startWebScrapping: startScrapping,
+    removeChannelTarget: removeChannelTarget,
     commandCreateTarget: commandCreateChannelTarget,
     commandRemoveTarget: commandRemoveChannelTarget,
     commandDebugLog: commandPrintDebugLog,
+    commandHelpLog: commandPrintHelp,
 }
