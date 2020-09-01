@@ -1,5 +1,5 @@
 # Game Deals Bot Discord
-A Discord Bot that scrapes [r/GameDeals](https://www.reddit.com/r/GameDeals/) on Reddit for discounts or free deals on Games.\
+A Discord Bot that scrapes [r/GameDeals](https://www.reddit.com/r/GameDeals/) on Reddit for discounts or free deals on Games.
 
 ## Installation
 ### Setup
