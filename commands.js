@@ -7,6 +7,9 @@ var obj_previousResults = null;
 var obj_results = null;
 var myTimer = null;
 
+/**
+ * Sends scrapped difference to the channel targets
+ */
 const sendScrapResult = async () => {
     const array_resultDiff = await fetchNewScrapResultDiff();
     for(var i = 0; i < array_resultDiff.length; ++i) {
@@ -20,6 +23,10 @@ const sendScrapResult = async () => {
         console.log(array_resultDiff[i].title + "\nNew Deal SENT!\n");
     }
 }
+/**
+ * Scrapes new Data from the web
+ * Returns the difference between the old and new data
+ */
 const fetchNewScrapResultDiff = async () => {
     obj_results = await getScrappedResults(b_newDeals);
     var array_resultDiff = getResultsDifference();
@@ -33,7 +40,7 @@ const fetchNewScrapResultDiff = async () => {
     return array_resultDiff;
 }
 /**
- * Resets the scrapped results 
+ * Resets the scrapped results to the beginning
  */
 const resetScrapResults = () => {
     obj_previousResults = null;
