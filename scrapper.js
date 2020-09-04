@@ -1,19 +1,22 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 
-const siteURL = "https://www.reddit.com/r/GameDeals/new/"
+const redditNewURL = "https://www.reddit.com/r/GameDeals/new/"
 
-const fetchData = async () => {
-    const result = await axios.get(siteURL);
+const scrapRedditData = async (b_New) => {
+    var finalURL = redditNewURL;
+    if (!b_New)
+        finalURL = redditNewURL.slice(0, 35);
+    const result = await axios.get(finalURL);
     return cheerio.load(result.data);
 };
 
-const getResults = async () => {
+const getScrappedResults = async (b_New) => {
     const titleElement = "h3._eYtD2XCVieq6emjKBH3m";
     const dealLinkElement = "div._10wC0aXnrUKfdJ4Ssz-o14";
     const redditLink = "a.SQnoC3ObvgnGjWt90zD9Z";
     const articleRoot = "div._32pB7ODBwG3OSx1u_17g58";
-    const $ = await fetchData();
+    const $ = await scrapRedditData(b_New);
     var titleArray = [];
     var dealLinkArray = [];
     var redditLinkArray = [];
@@ -47,4 +50,4 @@ const getResults = async () => {
     };
 }
 
-module.exports = getResults;
+module.exports = getScrappedResults;

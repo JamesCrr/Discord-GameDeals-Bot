@@ -1,6 +1,7 @@
-const getResults = require("./scrapper");
+const getScrappedResults = require("./scrapper");
 
 const prefix = "!";
+var b_newDeals = true;
 var array_ChannelTargets = [];
 var obj_previousResults = null;
 var obj_results = null;
@@ -20,8 +21,8 @@ const sendScrapResult = async () => {
     }
 }
 const fetchNewScrapResultDiff = async () => {
-    obj_results = await getResults();
-    var array_resultDiff = getResultsDiff();
+    obj_results = await getScrappedResults(b_newDeals);
+    var array_resultDiff = getResultsDifference();
     var currentDate = new Date();
     console.log("Time: " + currentDate.toTimeString() +
     "\nRecordedDeal: " + (obj_previousResults === null ? "null" : obj_previousResults.titles[0]) +
@@ -31,7 +32,19 @@ const fetchNewScrapResultDiff = async () => {
     obj_previousResults = obj_results;
     return array_resultDiff;
 }
-const getResultsDiff = () => {
+/**
+ * Resets the scrapped results 
+ */
+const resetScrapResults = () => {
+    obj_previousResults = null;
+    obj_results = null;
+    fetchNewScrapResultDiff();
+}
+/**
+ * Compare results between previously scrapped results and the current results
+ * Returns the differences in a Object Array  
+ */
+const getResultsDifference = () => {
     var arrayDiff = []
     if (obj_results === null || obj_previousResults === null)
         return arrayDiff;
@@ -67,6 +80,19 @@ const getDebugLog = () => {
     }
     return msg;
 }
+const filterChannelTargets = () => {
+    var removables = [];
+    for(var i = 0; i < array_ChannelTargets.length; ++i) {
+        if (array_ChannelTargets[i].type !== "text" ||
+            array_ChannelTargets[i].deleted === true)
+        {
+            removables.push(i);
+        }
+    }
+    for (var i = 0; i < removables.length; ++i){
+        array_ChannelTargets.splice(removables, 1);
+    }
+}
 const getChannelTargetIndex = (channelID) => {
     for(var i = 0; i < array_ChannelTargets.length; ++i) {
         if (channelID === array_ChannelTargets[i].id)
@@ -75,6 +101,9 @@ const getChannelTargetIndex = (channelID) => {
     return null;
 }
 
+/**************************************
+    Command Functions
+***************************************/
 const startScrapping = () => {
     if (myTimer !== null)
         return;
@@ -118,8 +147,8 @@ const commandPrintDebugLog = (message) => {
 }
 const commandPrintHelp = (message) => {
     const msg = "**Commands:**\n" +
-    "\t**!target :** Registers this channel to receive Deals\n" + 
-    "\t**!rmtarget :** Unregisters this channel from receiving Deals\n" +
+    "\t**!in :** Registers this channel to receive Deals\n" + 
+    "\t**!out :** Unregisters this channel from receiving Deals\n" +
     "\t**!latest :** Returns the latest deal\n" +  
     "\t**!help :** Displays information about all avaliable commands\n"; 
     message.channel.send(msg);

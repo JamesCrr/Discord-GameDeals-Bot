@@ -35,8 +35,8 @@ Because of hosting costs and the project scope, the bot is **not** hosted public
 ### Bot Commands
 | Command       | About                                                                                |
 | ------------- | ------------------------------------------------------------------------------------ |
-| target        | Bot will send info about deals to this channel where the command was issused.        |
-| rmtarget      | Bot will NO longer send deals to this channel.                                       |
+| in            | Bot will send info about deals to this channel where the command was issused.        |
+| out           | Bot will NO longer send deals to this channel.                                       |
 | latest        | Returns the latest deal.                                                              |
 | help          | Displays all possible commands, and what they do.                                    |
 | debuglog      | Debug Information.                                                                   |

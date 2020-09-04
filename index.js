@@ -29,28 +29,34 @@ discordClient.on("channelDelete", deletedChannel => {
         return;
     scrapperCommands.removeChannelTarget(deletedChannel.id);
 });
+discordClient.on("channelUpdate", (oldChannel, newChannel) => {
+    if (oldChannel.type !== "text")
+        return;
+    if (newChannel.type !== "text")
+        scrapperCommands.removeChannelTarget(newChannel.id);
+});
 discordClient.on("message", message => {
     if(message.author.bot || !message.content.startsWith(scrapperCommands.prefix))
         return;
 
-    var commandStr = message.content.slice(scrapperCommands.prefix.length).toLowerCase().split(" ");
-    if(commandStr[0] === "target"){
+    var commandStrArray = message.content.slice(scrapperCommands.prefix.length).toLowerCase().split(" ");
+    if(commandStrArray[0] === "in"){
         if (message.channel.type === "dm"){
             message.channel.send("Unable to register, Only avaliable in channels.");
             return;
         }
         scrapperCommands.commandCreateTarget(message, true);
     }
-    else if(commandStr[0] === "rmtarget"){
+    else if(commandStrArray[0] === "out"){
         scrapperCommands.commandRemoveTarget(message, true);
     }
-    else if(commandStr[0] === "latest"){
+    else if(commandStrArray[0] === "latest"){
         scrapperCommands.commandLatestDeal(message);
     }
-    else if(commandStr[0] === "help"){
+    else if(commandStrArray[0] === "help"){
         scrapperCommands.commandHelpLog(message);
     }
-    else if(commandStr[0] === "debuglog"){
+    else if(commandStrArray[0] === "debuglog"){
         scrapperCommands.commandDebugLog(message);
     }
    
